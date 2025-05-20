@@ -69,6 +69,8 @@ public class CrearViajeDTO {
         return busId;
     }
 
+
+
     public void setBusId(Long busId) {
         this.busId = busId;
     }
