@@ -36,7 +36,6 @@ public class CrearViajeDTO {
     public LocalTime getHoraSalida() {
         return horaSalida;
     }
-
     public void setHoraSalida(LocalTime horaSalida) {
         this.horaSalida = horaSalida;
     }
@@ -68,8 +67,6 @@ public class CrearViajeDTO {
     public Long getBusId() {
         return busId;
     }
-
-
 
     public void setBusId(Long busId) {
         this.busId = busId;
