@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher; // Importar
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -20,11 +21,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> {}) // Habilitar CORS
-                .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF (si lo necesitas)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Aplicar la configuración CORS
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/**").permitAll()
-                        .anyRequest().authenticated() // Requiere autenticación para otras rutas
+                        .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll() // Permitir acceso a todos los endpoints de Actuator
+                        .requestMatchers(new AntPathRequestMatcher("/api/**")).permitAll()
+                        .anyRequest().authenticated()
                 );
 
         return http.build();
@@ -38,13 +40,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Permitir solicitudes desde tu frontend
+        // OJO: Para producción, no uses "*" o sé más específico con los orígenes
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://tu-dominio-de-frontend.com"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // Permitir estos headers
-        configuration.setAllowCredentials(true); // Permitir cookies
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // Tiempo de vida de la respuesta pre-flight de CORS
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Aplicar CORS a todas las rutas
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }
