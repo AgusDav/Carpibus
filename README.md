@@ -1,2 +1,2 @@
-# capibus
-Proyecto final tecnologo
+# Carpibus
+Materia de Proyecto de Tecnólogo en Informática
